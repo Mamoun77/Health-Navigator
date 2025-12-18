@@ -2,10 +2,12 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torchvision import transforms, models
+from PIL import Image
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def classify_chest_xray(image_path):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     # Define image transformations
     model = models.resnet18(weights=None) # not pretrained
     model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False) # Change input channels from 3 to 1 (grayscale images)
@@ -15,9 +17,6 @@ def classify_chest_xray(image_path):
     model.load_state_dict(torch.load('models/model_epoch_66.pt'))
 
     model = model.to(device) # move the model to the GPU
-
-    from torchvision import transforms
-    from PIL import Image
 
     # Define transforms
     transform = transforms.Compose([
@@ -52,5 +51,11 @@ def classify_chest_xray(image_path):
         'Hernia'
     ]
 
-    predicted_class = output.argmax(dim=1).item()
-    return class_names[predicted_class]
+    probabilities = torch.sigmoid(output).squeeze()  # Apply sigmoid
+    threshold = 0.5  # Adjust based on your needs
+    predicted_labels = (probabilities > threshold).cpu().numpy()
+
+    # Return all positive predictions
+    results = {class_names[i]: probabilities[i].item() 
+            for i, pred in enumerate(predicted_labels) if pred}
+    return results
