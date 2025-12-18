@@ -30,7 +30,7 @@ def system_prompt_builder(input_text, available_attachments):
     Rules:
     - "xray", "report", "scan", "lab", "test" in filenames = medical attachment
     - When text is invalid but attachments are medical, still classify as TEXT_NOT_VALID_ATTACHMENT_VALID
-
+    - Note (important): for the attachments to be valid they all must be valid if one is invalid then all of them are invalid (ATTACHMENT_NOT_VALID)
     user input: {input_text}
     available attachments: {available_attachments}
     """
