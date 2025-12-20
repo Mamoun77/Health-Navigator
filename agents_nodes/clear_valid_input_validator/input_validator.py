@@ -6,8 +6,7 @@ import os
 load_dotenv('C:\My Projects\Health-Navigator\credentials.env')
 
 
-def system_prompt_builder(input_text, available_attachments):
-    system_prompt = f"""
+system_prompt = f"""
     You are a medical input classifier. Classify into ONE label.
 
     TEXT_VALID_ATTACHMENT_VALID
@@ -31,10 +30,7 @@ def system_prompt_builder(input_text, available_attachments):
     - "xray", "report", "scan", "lab", "test" in filenames = medical attachment
     - When text is invalid but attachments are medical, still classify as TEXT_NOT_VALID_ATTACHMENT_VALID
     - Note (important): for the attachments to be valid they all must be valid if one is invalid then all of them are invalid (ATTACHMENT_NOT_VALID)
-    user input: {input_text}
-    available attachments: {available_attachments}
-    """
-    return system_prompt
+"""
 
 
 class MedicalInputCheck(TypedDict):
@@ -53,8 +49,9 @@ def validate_medical_input_agent(input_text: str, available_attachments=None):
     available_attachments = available_attachments if available_attachments else "The user did not provide any attachments."
 
     result = structured_llm.invoke([
-        ("system", system_prompt_builder(input_text, available_attachments)),
-        ("human", input_text)
+        ("system", system_prompt),
+        ("human", f"Text: {input_text}\nAttachments: {available_attachments}"),
+        
     ])
 
     return result['input_classification']
