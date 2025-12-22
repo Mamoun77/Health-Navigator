@@ -29,7 +29,7 @@ system_prompt = """
 
 client = genai.Client()
 
-def validate_image(image_title, image_path):
+def classify_image(image_title, image_path):
     with open(image_path, 'rb') as f:
         image_bytes = f.read()
 
@@ -44,7 +44,7 @@ def validate_image(image_title, image_path):
             f"Image Title: {image_title}"
         ],
         config=types.GenerateContentConfig(
-            system_instruction=system_prompt
+            system_instruction=system_prompt,
             response_mime_type="application/json",
             response_schema=MedicalInputCheck
         )
